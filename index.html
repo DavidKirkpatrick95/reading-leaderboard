@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reading Leaderboard · The Read Maxxing Society</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%231C1A16%27/%3E%3Cpath d=%27M32 21c-6-5-14-6-22-3v26c8-3 16-2 22 3 6-5 14-6 22-3V18c-8-3-16-2-22 3Zm0 0v26%27 fill=%27none%27 stroke=%27%23E9B44C%27 stroke-width=%274%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<meta name="description" content="Log the pages you read each day and see everyone's progress.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..800;1,7..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F5EFE3;--card:#FBF8F1;--ink:#1C1A16;--soft:#5E574B;--line:#D9CFBC;--hot:#C8401C;--hot2:#A93414;--green:#2E7D6B;--serif:'Literata',Georgia,serif;--sans:'Plus Jakarta Sans',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;padding-bottom:60px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+header.top{display:flex;align-items:center;gap:12px;padding:18px 0 6px}
+header.top .t{flex:1;min-width:0}
+header.top small{display:block;font:700 11.5px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--hot)}
+h1{font:700 30px/1.1 var(--serif);letter-spacing:-.015em}
+.me{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 5px;font-weight:600;font-size:14px;max-width:46vw}
+.me span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn{background:var(--hot);color:#fff;border:0;border-radius:999px;font-weight:700;padding:11px 20px;box-shadow:0 2px 0 var(--hot2)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--ink);box-shadow:none}
+.btn.small{padding:7px 14px;font-size:14px}
+.link{background:none;border:0;color:var(--hot);font-weight:700;padding:0;text-decoration:underline}
+.av{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:#DCCFB4 center/cover;display:inline-flex;align-items:center;justify-content:center;font:700 13px var(--sans);color:#5E574B;overflow:hidden}
+.av.big{width:84px;height:84px;font-size:28px}
+.note{background:#FFF3D6;border:1px solid #E5C877;border-radius:12px;padding:10px 14px;font-size:14px;margin-top:10px}
+.tabs{display:flex;gap:6px;margin-top:14px;overflow-x:auto;padding-bottom:2px}
+.tabs button{flex:1 0 auto;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px;text-align:left;min-width:128px}
+.tabs button b{display:block;font-size:15px}
+.tabs button span{font-size:12.5px;color:var(--soft)}
+.tabs button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.tabs button.on span{color:#D9CFBC}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
+.card h2{font:700 20px/1.2 var(--serif)}
+.sub{color:var(--soft);font-size:14px}
+/* log pages */
+.log .days{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.log .days button{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-weight:600;font-size:14px}
+.log .days button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.log .days input[type=date]{border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:#fff;font-size:14px}
+.log .row{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.log .num{display:flex;align-items:center;border:2px solid var(--ink);border-radius:14px;background:#fff;overflow:hidden}
+.log .num button{width:48px;height:54px;border:0;background:none;font-size:24px;font-weight:700}
+.log .num input{width:92px;height:54px;border:0;text-align:center;font:700 28px var(--serif);background:none;-moz-appearance:textfield}
+.log .num input::-webkit-outer-spin-button,.log .num input::-webkit-inner-spin-button{-webkit-appearance:none}
+.log .quick button{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-weight:700;font-size:14px}
+.log .msg{font-size:14px;margin-top:8px;min-height:21px}
+.msg.ok{color:var(--green);font-weight:700}.msg.err{color:#B3261E;font-weight:700}
+.mylog{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.mylog button{background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 9px;font-size:13px}
+.mylog button b{font-weight:700}
+/* chart */
+.charthead{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.charthead .h{flex:1;min-width:200px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.seg button{border:0;background:none;padding:6px 13px;font-size:13.5px;font-weight:600}
+.seg button.on{background:var(--ink);color:#fff}
+#chart{margin-top:8px;position:relative}
+#chart svg{display:block;width:100%;height:auto;overflow:visible}
+#chart text{font-family:var(--sans)}
+.empty{padding:26px 10px;text-align:center;color:var(--soft)}
+.empty b{display:block;font:700 20px var(--serif);color:var(--ink);margin-bottom:4px}
+/* list */
+.list{margin-top:6px}
+.r{display:grid;grid-template-columns:30px 34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 6px;border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left;border-radius:0}
+.r:first-child{border-top:0}
+.r .k{font:700 16px var(--serif);text-align:center;color:var(--soft)}
+.r .n{min-width:0}
+.r .n b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r .n span{font-size:13px;color:var(--soft)}
+.r .p{font:700 20px var(--serif);text-align:right}
+.r .p small{display:block;font:500 11.5px var(--sans);color:var(--soft)}
+.r.you{background:#FFF1E6;border-radius:10px;border-top-color:transparent}
+.r.focus{outline:2px solid var(--ink);border-radius:10px}
+.r i.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(28,26,22,.55);display:none;align-items:flex-start;justify-content:center;padding:5vh 14px;overflow-y:auto;z-index:20}
+.modal.on{display:flex}
+.box{background:var(--card);border-radius:18px;padding:22px;width:min(440px,100%);position:relative}
+.box.wide{width:min(680px,100%)}
+.box h2{font:700 24px/1.15 var(--serif);margin-bottom:4px}
+.box .x{position:absolute;right:12px;top:10px;border:0;background:none;font-size:26px;line-height:1;padding:6px}
+label{display:block;font-weight:700;font-size:14px;margin-top:14px}
+label small{font-weight:500;color:var(--soft)}
+input[type=text],input[type=email],input[type=password],input[type=tel],input[type=search],.box input[type=date]{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff;margin-top:5px;font-size:16px}
+input:focus-visible,button:focus-visible{outline:3px solid #F0A53A;outline-offset:1px}
+.box .btn{width:100%;margin-top:18px;padding:13px}
+.box .alt{margin-top:14px;font-size:14px;text-align:center}
+.photo{display:flex;align-items:center;gap:14px;margin-top:8px}
+.choice{display:grid;gap:8px;margin-top:14px}
+.choice button{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left}
+.choice button b{display:block}
+.choice button span{font-size:13.5px;color:var(--soft)}
+.adm .u{display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.adm .u label{margin:0;font-weight:600;display:flex;gap:5px;align-items:center;white-space:nowrap}
+.adm .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.adm .users{max-height:42vh;overflow-y:auto;margin-top:8px}
+footer{margin-top:22px;font-size:13px;color:var(--soft);text-align:center}
+body.embed header.top h1{font-size:22px}
+body.embed footer{display:none}
+body.embed{padding-bottom:16px}
+@media (max-width:560px){h1{font-size:24px}.r{grid-template-columns:24px 30px minmax(0,1fr) auto;gap:8px}.av{width:30px;height:30px}.r .p{font-size:18px}.tabs button{min-width:118px}.adm .u{grid-template-columns:30px minmax(0,1fr);} .adm .u label{grid-column:2}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="t"><small>The Read Maxxing Society</small><h1>Reading Leaderboard</h1></div>
+    <div id="acct"></div>
+  </header>
+  <div id="demo" class="note" hidden><b>Preview mode.</b> This copy is not connected to the live database yet. Accounts and pages are saved on this device only, and the other readers are samples.</div>
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div id="gate"></div>
+  <div class="card log" id="log" hidden></div>
+  <div class="card">
+    <div class="charthead"><div class="h"><h2 id="ctitle"></h2><div class="sub" id="csub"></div></div>
+      <div class="seg" id="mode"><button data-m="total">Total pages</button><button data-m="daily">Per day</button></div></div>
+    <div id="chart"></div>
+  </div>
+  <div class="card"><h2>Ranking</h2><div class="sub" id="lsub"></div><div class="list" id="list"></div></div>
+  <footer>Your name, photo and page counts are visible to everyone who opens this page.</footer>
+</div>
+<div class="modal" id="modal"><div class="box" id="box"></div></div>
+
+<script>
+// ---------- connection: fill these two in to go live. Empty = preview mode (this device only). ----------
+const CFG = { url: '', key: '' };
+const LIVE = !!(CFG.url && CFG.key);
+const Q = new URLSearchParams(location.search);
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+
+// ---------- dates (a "day" is the reader's own calendar day, written YYYY-MM-DD) ----------
+const pad = n => String(n).padStart(2, '0');
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d, 12); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const diff = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
+const range = (a, b) => { const out = []; for (let d = a; d <= b; d = addDays(d, 1)) out.push(d); return out; };
+const FAKE_TODAY = !LIVE && /^\d{4}-\d\d-\d\d$/.test(Q.get('today') || '') ? Q.get('today') : null; // preview mode only, for testing
+const today = () => FAKE_TODAY || iso(new Date());
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const short = s => { const d = parse(s); return MON[d.getMonth()] + ' ' + d.getDate(); };
+const MIN_DAY = '2026-11-01', MAX_PAGES = 1000;
+
+const state = { me: null, profiles: [], entries: [], settings: { text_number: '', c7_start: '2027-01-01', c7_end: '2027-01-07', p6_start: '2027-01-11', p6_end: '2027-02-21' },
+  view: null, mode: LS.get('lb-mode', 'total'), focus: null, logDay: null, loaded: false, error: '' };
+
+// ---------- data layer: the same calls work against the live database or the on-device preview ----------
+function friendly(e) {
+  const m = (e && (e.message || e.error_description || e.msg)) || String(e || '');
+  if (/already registered|already been registered|user_already_exists/i.test(m)) return 'That email already has an account. Sign in instead.';
+  if (/invalid login|invalid_credentials/i.test(m)) return 'Wrong email or password.';
+  if (/email not confirmed/i.test(m)) return 'Check your email and click the confirmation link first.';
+  if (/rate limit|too many/i.test(m)) return 'Too many tries. Wait a minute and try again.';
+  if (/password/i.test(m) && /least|short|weak/i.test(m)) return 'Use a password of at least 6 characters.';
+  if (/failed to fetch|network|load failed/i.test(m)) return 'No connection. Check your internet and try again.';
+  if (/has not happened yet/i.test(m)) return 'That day has not happened yet.';
+  if (/valid email|invalid format|email address.*invalid/i.test(m)) return 'That email address does not look right.';
+  return m || 'Something went wrong. Try again.';
+}
+
+function demoApi() {
+  const K = 'lb-demo-v1';
+  let db = LS.get(K, null);
+  const save = () => LS.set(K, db);
+  if (!db) {
+    db = { users: [], entries: [], settings: Object.assign({}, state.settings), session: null };
+    const names = ['Sample: Maya', 'Sample: Jordan', 'Sample: Priya', 'Sample: Luis', 'Sample: Hannah', 'Sample: Theo', 'Sample: Aisha', 'Sample: Ben'];
+    let seed = 11; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+    const t = today(), from = addDays(t, -16);
+    names.forEach((name, i) => { const id = 's' + i; db.users.push({ id, name, email: '', password: '', avatar_url: null, in_program: i < 4, is_admin: false, hidden: false });
+      const base = 14 + rnd() * 34; range(from < MIN_DAY ? MIN_DAY : from, t).forEach(day => { if (rnd() > .16) db.entries.push({ user_id: id, day, pages: Math.max(3, Math.round(base * (.5 + rnd()))) }); }); });
+    save();
+  }
+  const pub = u => u && { id: u.id, name: u.name, avatar_url: u.avatar_url, in_program: u.in_program, is_admin: u.is_admin, hidden: u.hidden, email: u.email };
+  const cur = () => db.users.find(u => u.id === db.session);
+  const wait = v => new Promise(r => setTimeout(() => r(v), 120));
+  return {
+    async init() { return wait(pub(cur())); },
+    async signUp({ name, email, password }) { email = email.trim().toLowerCase();
+      if (db.users.some(u => u.email === email)) throw new Error('user_already_exists');
+      const u = { id: 'u' + Date.now(), name, email, password, avatar_url: null, in_program: false, is_admin: !db.users.some(x => x.email), hidden: false };
+      db.users.push(u); db.session = u.id; save(); return wait({ user: pub(u), needsConfirm: false }); },
+    async signIn({ email, password }) { const u = db.users.find(x => x.email && x.email === email.trim().toLowerCase() && x.password === password); if (!u) throw new Error('invalid_credentials'); db.session = u.id; save(); return wait(pub(u)); },
+    async signOut() { db.session = null; save(); return wait(); },
+    async resetPassword() { return wait(); },
+    async setPassword(p) { const u = cur(); if (u) { u.password = p; save(); } return wait(); },
+    async load() { return wait({ profiles: db.users.map(pub), entries: db.entries.slice(), settings: Object.assign({}, db.settings) }); },
+    async saveEntry(day, pages) { const u = cur(); if (!u) throw new Error('Sign in first.'); if (day > today()) throw new Error('That day has not happened yet.');
+      db.entries = db.entries.filter(e => !(e.user_id === u.id && e.day === day)); if (pages > 0) db.entries.push({ user_id: u.id, day, pages }); save(); return wait(); },
+    async updateProfile({ name, avatar }) { const u = cur(); if (name != null) u.name = name; if (avatar !== undefined) u.avatar_url = avatar ? avatar.dataUrl : null; save(); return wait(pub(u)); },
+    async adminSet(id, patch) { const u = db.users.find(x => x.id === id); Object.assign(u, patch); save(); return wait(); },
+    async saveSettings(s) { Object.assign(db.settings, s); save(); return wait(); },
+    async deleteMe() { const u = cur(); db.entries = db.entries.filter(e => e.user_id !== u.id); db.users = db.users.filter(x => x !== u); db.session = null; save(); return wait(); },
+    onAuth() {}
+  };
+}
+
+function liveApi(sb) {
+  const all = async (table, cols, order) => { let out = [], from = 0; for (;;) { let q = sb.from(table).select(cols); order.forEach(o => q = q.order(o)); const { data, error } = await q.range(from, from + 999); if (error) throw error; out = out.concat(data); if (data.length < 1000) break; from += 1000; } return out; };
+  let uid = null, email = '';
+  async function ensureProfile(user) { // every signed-in person has a profile row, however they got here
+    uid = user.id; email = user.email || '';
+    let { data, error } = await sb.from('profiles').select('*').eq('id', uid).maybeSingle(); if (error) throw error;
+    if (!data) { const name = String((user.user_metadata && user.user_metadata.name) || email.split('@')[0] || 'Reader').trim().slice(0, 40) || 'Reader';
+      const ins = await sb.from('profiles').insert({ id: uid, name }).select().single(); if (ins.error) throw ins.error; data = ins.data; }
+    return Object.assign({ email }, data);
+  }
+  return {
+    async init() { const { data } = await sb.auth.getSession(); return data.session ? ensureProfile(data.session.user) : null; },
+    async signUp({ name, email, password }) { const { data, error } = await sb.auth.signUp({ email: email.trim(), password, options: { data: { name }, emailRedirectTo: location.origin + location.pathname } }); if (error) throw error;
+      if (data.user && data.user.identities && data.user.identities.length === 0) throw new Error('user_already_exists');
+      if (!data.session) return { user: null, needsConfirm: true };
+      return { user: await ensureProfile(data.user), needsConfirm: false }; },
+    async signIn({ email, password }) { const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password }); if (error) throw error; return ensureProfile(data.user); },
+    async signOut() { await sb.auth.signOut(); uid = null; },
+    async resetPassword(email) { const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: location.origin + location.pathname }); if (error) throw error; },
+    async setPassword(p) { const { error } = await sb.auth.updateUser({ password: p }); if (error) throw error; },
+    async load() { const [profiles, entries, st] = await Promise.all([all('profiles', 'id,name,avatar_url,in_program,is_admin,hidden', ['id']), all('entries', 'user_id,day,pages', ['user_id', 'day']), sb.from('settings').select('*').eq('id', 1).maybeSingle()]);
+      if (st.error) throw st.error; return { profiles, entries, settings: st.data || state.settings }; },
+    async saveEntry(day, pages) { if (!uid) throw new Error('Sign in first.');
+      const r = pages > 0 ? await sb.from('entries').upsert({ user_id: uid, day, pages }) : await sb.from('entries').delete().match({ user_id: uid, day }); if (r.error) throw r.error; },
+    async updateProfile({ name, avatar }) { const patch = {}; if (name != null) patch.name = name;
+      if (avatar !== undefined) { const old = await sb.storage.from('avatars').list(uid); if (avatar) { const path = uid + '/a-' + Date.now() + '.jpg'; const up = await sb.storage.from('avatars').upload(path, avatar.blob, { contentType: 'image/jpeg', upsert: true }); if (up.error) throw up.error; patch.avatar_url = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl; } else patch.avatar_url = null;
+        if (old.data && old.data.length) sb.storage.from('avatars').remove(old.data.map(f => uid + '/' + f.name)).catch(() => {}); }
+      const { data, error } = await sb.from('profiles').update(patch).eq('id', uid).select().single(); if (error) throw error; return Object.assign({ email }, data); },
+    async adminSet(id, patch) { const { error } = await sb.from('profiles').update(patch).eq('id', id); if (error) throw error; },
+    async saveSettings(s) { const { error } = await sb.from('settings').update(s).eq('id', 1); if (error) throw error; },
+    async deleteMe() { const old = await sb.storage.from('avatars').list(uid); if (old.data && old.data.length) await sb.storage.from('avatars').remove(old.data.map(f => uid + '/' + f.name)); const { error } = await sb.rpc('delete_me'); if (error) throw error; await sb.auth.signOut(); uid = null; },
+    onAuth(cb) { sb.auth.onAuthStateChange((ev, session) => { if (ev === 'PASSWORD_RECOVERY') cb('recovery'); else if (ev === 'SIGNED_OUT') cb('out'); }); }
+  };
+}
+let api;
+
+// ---------- boards ----------
+const VIEWS = { c7: ['7-day challenge', s => short(s.c7_start) + ' – ' + short(s.c7_end) + ' · free'], p6: ['6-week challenge', s => short(s.p6_start) + ' – ' + short(s.p6_end) + ' · members'], all: ['All time', () => 'Every page logged'] };
+function board(view) {
+  const s = state.settings, t = today(); let from, to, members = false;
+  if (view === 'c7') { from = s.c7_start; to = s.c7_end; }
+  else if (view === 'p6') { from = s.p6_start; to = s.p6_end; members = true; }
+  else { to = t; from = state.entries.reduce((m, e) => e.day < m ? e.day : m, addDays(t, -13)); if (diff(from, to) < 13) from = addDays(to, -13); }
+  const by = {}; state.entries.forEach(e => { if (e.day >= from && e.day <= to && e.day <= t) (by[e.user_id] = by[e.user_id] || {})[e.day] = e.pages; });
+  const meId = state.me && state.me.id;
+  const rows = state.profiles.filter(p => !p.hidden && (!members || p.in_program)).map(p => { const d = by[p.id] || {}, ks = Object.keys(d); return { p, d, total: ks.reduce((a, k) => a + d[k], 0), days: ks.length }; })
+    .filter(r => r.total > 0 || r.p.id === meId).sort((a, b) => b.total - a.total || a.p.name.localeCompare(b.p.name));
+  return { view, from, to, rows, members, started: t >= from, over: t > to };
+}
+const COLORS = ['#1D5AA6', '#2E7D6B', '#B7791F', '#7A4FB5', '#0E7C86'];
+function colorOf(b, r, i) { if (state.me && r.p.id === state.me.id) return '#C8401C'; return i < COLORS.length ? COLORS[i] : '#B9AE98'; }
+function avatar(p, cls) { const u = p && p.avatar_url, ok = u && /^(https:\/\/|data:image\/)/.test(u); const ini = esc(((p && p.name) || '?').replace(/^Sample: /, '').trim().charAt(0).toUpperCase());
+  return '<span class="av ' + (cls || '') + '"' + (ok ? ' style="background-image:url(&quot;' + esc(u).replace(/[()]/g, '') + '&quot;)"' : '') + '>' + (ok ? '' : ini) + '</span>'; }
+
+// ---------- chart: x = day, y = pages ----------
+function drawChart(b) {
+  const el = $('#chart'), W = Math.max(300, el.clientWidth), H = W < 520 ? 250 : 320, L = 40, R = 14, T = 14, B = 34, iw = W - L - R, ih = H - T - B, t = today(), s = state.settings;
+  const days = range(b.from, b.to), n = days.length, fade = b.view === 'c7' ? range(s.p6_start, s.p6_end) : [];
+  const solidW = fade.length ? iw * .64 : iw, fx0 = L + iw * .70;
+  const x = i => L + (n === 1 ? solidW / 2 : i / (n - 1) * solidW), fx = j => fx0 + j / (fade.length - 1) * (L + iw - fx0);
+  const total = state.mode === 'total';
+  const series = b.rows.map((r, i) => { let acc = 0; const pts = []; days.forEach((d, k) => { if (d > t) return; const v = r.d[d] || 0; acc += v; pts.push([k, total ? acc : v]); }); return { r, i, pts, acc }; });
+  // in the 7-day view, members' pages carry on, faded, through the six weeks that follow
+  const tail = fade.length ? series.filter(sr => sr.r.p.in_program).map(sr => { let acc = sr.acc; const pts = []; const mine = {}; state.entries.forEach(e => { if (e.user_id === sr.r.p.id) mine[e.day] = e.pages; });
+    fade.forEach((d, j) => { if (d > t) return; const v = mine[d] || 0; acc += v; pts.push([j, total ? acc : v]); }); return { sr, pts }; }).filter(o => o.pts.length) : [];
+  let max = 10; series.forEach(sr => sr.pts.forEach(p => { if (p[1] > max) max = p[1]; })); tail.forEach(o => o.pts.forEach(p => { if (p[1] > max) max = p[1]; }));
+  const step = [5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000, 20000, 50000].find(v => max / v <= 5) || 100000; max = Math.ceil(max / step) * step;
+  const y = v => T + ih - v / max * ih;
+  let g = '';
+  for (let v = 0; v <= max; v += step) g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="#E3D9C5"/><text x="' + (L - 7) + '" y="' + (y(v) + 4) + '" text-anchor="end" font-size="11" fill="#5E574B">' + v + '</text>';
+  const every = n <= 8 ? 1 : n <= 16 ? 2 : n <= 45 ? 7 : Math.ceil(n / 6);
+  days.forEach((d, k) => { if (k % every && k !== n - 1) return; if (k === n - 1 && (n - 1) % every && (n - 1) % every < every / 2 && n > 8) return;
+    const lab = b.view === 'c7' ? 'Day ' + (k + 1) : b.view === 'p6' && every === 7 ? 'Wk ' + (k / 7 + 1) : short(d);
+    g += '<text x="' + x(k) + '" y="' + (H - B + 16) + '" text-anchor="middle" font-size="11" font-weight="' + (d === t ? 800 : 500) + '" fill="' + (d === t ? '#C8401C' : '#5E574B') + '">' + lab + '</text>'; });
+  if (b.view === 'c7') g += '<text x="' + (L + solidW / 2) + '" y="' + (H - 3) + '" text-anchor="middle" font-size="10.5" fill="#5E574B">' + short(b.from) + ' – ' + short(b.to) + '</text>';
+  const ti = days.indexOf(t); if (ti >= 0) g += '<line x1="' + x(ti) + '" x2="' + x(ti) + '" y1="' + T + '" y2="' + (T + ih) + '" stroke="#C8401C" stroke-dasharray="3 4" opacity=".5"/>';
+  if (fade.length) { g += '<rect x="' + (fx0 - 10) + '" y="' + T + '" width="' + (L + iw - fx0 + 10 + R - 2) + '" height="' + ih + '" rx="8" fill="#EDE4D3" opacity=".75"/>';
+    g += '<text x="' + ((fx0 + L + iw) / 2) + '" y="' + (T + 16) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#8A8170">NEXT: 6-WEEK CHALLENGE</text>';
+    for (let w = 0; w < 6; w++) g += '<text x="' + fx(w * 7 + 3) + '" y="' + (H - B + 16) + '" text-anchor="middle" font-size="10.5" fill="#A39A88">W' + (w + 1) + '</text>';
+    g += '<text x="' + ((fx0 + L + iw) / 2) + '" y="' + (H - 3) + '" text-anchor="middle" font-size="10.5" fill="#A39A88">' + short(s.p6_start) + ' – ' + short(s.p6_end) + '</text>'; }
+  const path = (pts, fn) => pts.map((p, k) => (k ? 'L' : 'M') + fn(p[0]).toFixed(1) + ' ' + y(p[1]).toFixed(1)).join('');
+  const meId = state.me && state.me.id, hasFocus = state.focus && series.some(sr => sr.r.p.id === state.focus);
+  const order = series.slice().sort((a, c) => { const w = sr => (sr.r.p.id === state.focus ? 3 : sr.r.p.id === meId ? 2 : sr.i < COLORS.length ? 1 : 0); return w(a) - w(c); });
+  order.forEach(sr => { if (!sr.pts.length) return; const id = sr.r.p.id, col = colorOf(b, sr.r, sr.i), strong = id === meId || id === state.focus, named = sr.i < COLORS.length || strong;
+    const op = hasFocus ? (id === state.focus ? 1 : .18) : (named ? 1 : .55), sw = strong ? 3.4 : named ? 2.2 : 1.3;
+    if (sr.pts.length === 1) g += '<circle cx="' + x(sr.pts[0][0]) + '" cy="' + y(sr.pts[0][1]) + '" r="' + (sw + 1.4) + '" fill="' + col + '" opacity="' + op + '"/>';
+    else g += '<path d="' + path(sr.pts, x) + '" fill="none" stroke="' + col + '" stroke-width="' + sw + '" stroke-linejoin="round" stroke-linecap="round" opacity="' + op + '"/>';
+    const last = sr.pts[sr.pts.length - 1]; if (strong || (named && !hasFocus)) g += '<circle cx="' + x(last[0]) + '" cy="' + y(last[1]) + '" r="' + (strong ? 5 : 3.6) + '" fill="' + col + '" stroke="#FBF8F1" stroke-width="1.5" opacity="' + op + '"/>';
+    const tl = tail.find(o => o.sr === sr); if (tl) g += '<path d="M' + x(last[0]).toFixed(1) + ' ' + y(last[1]).toFixed(1) + path(tl.pts, fx).replace(/^M/, 'L') + '" fill="none" stroke="' + col + '" stroke-width="' + Math.max(1.3, sw - .8) + '" stroke-linejoin="round" opacity="' + (op * .38) + '"/>'; });
+  el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Pages read by day">' + g + '</svg>';
+  if (!b.started) el.insertAdjacentHTML('beforeend', '<div class="empty" style="position:absolute;inset:20px 0 auto 0"><b>Starts ' + short(b.from) + '</b>' + diff(t, b.from) + ' day' + (diff(t, b.from) === 1 ? '' : 's') + ' to go. You can log pages on the All time board until then.</div>');
+  else if (!series.some(sr => sr.pts.some(p => p[1] > 0))) el.insertAdjacentHTML('beforeend', '<div class="empty" style="position:absolute;inset:20px 0 auto 0"><b>No pages yet</b>Be the first to log your reading.</div>');
+}
+
+// ---------- render ----------
+function render() {
+  const s = state.settings, me = state.me, b = board(state.view);
+  $('#acct').innerHTML = me ? '<button class="me" id="open-profile" aria-label="Your profile">' + avatar(me) + '<span>' + esc(me.name) + '</span></button>' : '<button class="btn small" id="open-auth">Sign up / Sign in</button>';
+  $('#tabs').innerHTML = Object.keys(VIEWS).map(k => '<button role="tab" data-v="' + k + '" class="' + (k === state.view ? 'on' : '') + '" aria-selected="' + (k === state.view) + '"><b>' + VIEWS[k][0] + '</b><span>' + esc(VIEWS[k][1](s)) + '</span></button>').join('');
+  $('#mode').querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.m === state.mode));
+  let gate = '';
+  if (state.error) gate = '<div class="note"><b>Could not load the leaderboard.</b> ' + esc(state.error) + ' <button class="link" id="retry">Try again</button></div>';
+  else if (state.view === 'p6' && !(me && me.in_program)) gate = '<div class="note"><b>This board is for people in the 6-week program.</b> ' + (s.text_number ? 'Text David at <a href="sms:' + esc(s.text_number.replace(/[^\d+]/g, '')) + '"><b>' + esc(s.text_number) + '</b></a> to be added.' : 'Text David to be added.') + (me ? ' Your pages still count on the 7-day and All time boards.' : '') + '</div>';
+  $('#gate').innerHTML = gate;
+  $('#ctitle').textContent = VIEWS[state.view][0];
+  $('#csub').textContent = (state.mode === 'total' ? 'Total pages read, day by day.' : 'Pages read each day.') + (b.over ? ' This challenge has ended.' : '');
+  drawChart(b);
+  $('#lsub').textContent = b.rows.length ? b.rows.filter(r => r.total > 0).length + ' reader' + (b.rows.filter(r => r.total > 0).length === 1 ? '' : 's') + ' · tap a name to highlight its line' : '';
+  const t = today();
+  $('#list').innerHTML = b.rows.length ? b.rows.map((r, i) => { const you = me && r.p.id === me.id, col = colorOf(b, r, i), named = i < COLORS.length || you;
+    return '<button class="r' + (you ? ' you' : '') + (state.focus === r.p.id ? ' focus' : '') + '" data-id="' + esc(r.p.id) + '"><span class="k">' + (r.total > 0 ? i + 1 : '–') + '</span>' + avatar(r.p) + '<span class="n"><b>' + (named ? '<i class="dot" style="background:' + col + '"></i>' : '') + esc(r.p.name) + (you ? ' (you)' : '') + '</b><span>' + r.days + ' day' + (r.days === 1 ? '' : 's') + ' read' + (r.d[t] ? ' · logged today ✓' : '') + '</span></span><span class="p">' + r.total.toLocaleString('en-US') + '<small>pages</small></span></button>'; }).join('')
+    : '<div class="empty">' + (state.loaded ? (b.started ? 'Nobody has logged pages on this board yet.' : 'This board opens ' + short(b.from) + '.') : 'Loading…') + '</div>';
+  renderLog();
+}
+function renderLog() {
+  const el = $('#log'), me = state.me; if (!me) { el.hidden = false; el.innerHTML = '<h2>Log your pages</h2><p class="sub">Sign up in under a minute, then add the pages you read each day.</p><div class="row"><button class="btn" id="open-auth2">Sign up / Sign in</button></div>'; return; }
+  el.hidden = false; const t = today(), y = addDays(t, -1); if (!state.logDay || state.logDay > t) state.logDay = t; const d = state.logDay;
+  const mine = {}; state.entries.forEach(e => { if (e.user_id === me.id) mine[e.day] = e.pages; });
+  const have = mine[d] || 0, recent = Object.keys(mine).sort().reverse().slice(0, 10);
+  el.innerHTML = '<h2>Log your pages</h2><p class="sub">One number per day: the total pages you read that day. You can change any day later.</p>' +
+    '<div class="days"><button data-d="' + t + '" class="' + (d === t ? 'on' : '') + '">Today</button><button data-d="' + y + '" class="' + (d === y ? 'on' : '') + '">Yesterday</button><input type="date" id="logdate" aria-label="Another day" min="' + MIN_DAY + '" max="' + t + '" value="' + d + '"></div>' +
+    '<div class="row"><div class="num"><button id="minus" aria-label="Fewer pages">−</button><input id="pages" type="number" inputmode="numeric" min="0" max="' + MAX_PAGES + '" step="1" value="' + (state.draft && state.draft.day === d ? esc(state.draft.v) : (have || '')) + '" placeholder="0" aria-label="Pages read on ' + short(d) + '"><button id="plus" aria-label="More pages">+</button></div>' +
+    '<div class="quick"><button data-add="10">+10</button> <button data-add="25">+25</button> <button data-add="50">+50</button></div><button class="btn" id="save">' + (have ? 'Update ' : 'Save ') + short(d) + '</button></div>' +
+    (state.flash && state.flash.day === d ? '<div class="msg ok" id="logmsg" role="status">' + esc(state.flash.text) + '</div>' : '<div class="msg" id="logmsg" role="status">' + (have ? 'You logged ' + have + ' pages for ' + short(d) + '.' : '') + '</div>') +
+    (recent.length ? '<div class="sub" style="margin-top:6px">Your recent days (tap to edit):</div><div class="mylog">' + recent.map(k => '<button data-d="' + k + '">' + short(k) + ' · <b>' + mine[k] + '</b></button>').join('') + '</div>' : '');
+}
+async function reload(quiet) {
+  try { const d = await api.load(); state.profiles = d.profiles; state.entries = d.entries; state.settings = Object.assign(state.settings, d.settings); state.error = ''; state.loaded = true;
+    if (state.me) { const p = d.profiles.find(x => x.id === state.me.id); if (p) Object.assign(state.me, p); } }
+  catch (e) { if (!quiet || !state.loaded) state.error = friendly(e); }
+  if (!state.view) state.view = pickView(); render();
+}
+function pickView() { const want = Q.get('board') || LS.get('lb-view', null), t = today(), s = state.settings; if (VIEWS[want]) return want;
+  if (t >= s.p6_start && t <= s.p6_end && state.me && state.me.in_program) return 'p6'; if (t <= s.c7_end) return t >= s.c7_start ? 'c7' : (Q.has('embed') ? 'c7' : 'all'); return 'all'; }
+
+// ---------- modals ----------
+const modal = $('#modal'), box = $('#box'); let lastFocus = null;
+function open(html, wide) { lastFocus = document.activeElement; box.className = 'box' + (wide ? ' wide' : ''); box.innerHTML = '<button class="x" aria-label="Close">×</button>' + html; modal.classList.add('on'); const f = box.querySelector('input,button.btn'); if (f) f.focus(); }
+function close() { modal.classList.remove('on'); box.innerHTML = ''; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+modal.addEventListener('mousedown', e => { if (e.target === modal) close(); });
+addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('on')) close(); });
+const busy = (btn, on, txt) => { btn.disabled = on; if (on) { btn.dataset.t = btn.textContent; btn.textContent = txt || 'Working…'; } else if (btn.dataset.t) btn.textContent = btn.dataset.t; };
+const say = (id, text, ok) => { const m = box.querySelector(id); if (m) { m.textContent = text; m.className = 'msg ' + (ok ? 'ok' : 'err'); } };
+
+function resizePhoto(file) { // any phone photo → a 256px square JPEG
+  return new Promise((res, rej) => { if (!file || !/^image\//.test(file.type)) return rej(new Error('Choose a photo.')); if (file.size > 25e6) return rej(new Error('That photo is too big. Choose a smaller one.'));
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => { const s = Math.min(img.naturalWidth, img.naturalHeight), c = document.createElement('canvas'); c.width = c.height = 256; c.getContext('2d').drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, 256, 256); URL.revokeObjectURL(url);
+      c.toBlob(blob => blob ? res({ blob, dataUrl: c.toDataURL('image/jpeg', .82) }) : rej(new Error('Could not read that photo. Try another one.')), 'image/jpeg', .82); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read that photo. Try another one.')); }; img.src = url; });
+}
+function photoField(p) { return '<label>Profile photo <small>(optional)</small></label><div class="photo"><span id="pv">' + avatar(p || { name: '?' }, 'big') + '</span><div><input type="file" id="file" accept="image/*" hidden><button type="button" class="btn ghost small" id="pick" style="width:auto;margin:0">Choose photo</button>' + (p && p.avatar_url ? ' <button type="button" class="link" id="nophoto">Remove</button>' : '') + '<div class="msg err" id="pmsg"></div></div></div>'; }
+function wirePhoto(holder) { const f = box.querySelector('#file'); box.querySelector('#pick').onclick = () => f.click();
+  f.onchange = async () => { try { holder.avatar = await resizePhoto(f.files[0]); box.querySelector('#pv').innerHTML = avatar({ name: '?', avatar_url: holder.avatar.dataUrl }, 'big'); box.querySelector('#pmsg').textContent = ''; } catch (e) { box.querySelector('#pmsg').textContent = e.message; } f.value = ''; };
+  const rm = box.querySelector('#nophoto'); if (rm) rm.onclick = () => { holder.avatar = null; box.querySelector('#pv').innerHTML = avatar({ name: box.querySelector('#name').value || '?' }, 'big'); }; }
+
+function authModal(tab) {
+  const up = tab !== 'in';
+  open('<h2>' + (up ? 'Join the leaderboard' : 'Welcome back') + '</h2><p class="sub">' + (up ? 'Takes under a minute.' : 'Sign in to log your pages.') + '</p><form id="f" novalidate>' +
+    (up ? '<label for="name">Your name <small>(shown on the board)</small></label><input id="name" type="text" maxlength="40" autocomplete="name" required>' : '') +
+    '<label for="email">Email</label><input id="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" required>' +
+    '<label for="pw">Password' + (up ? ' <small>(at least 6 characters)</small>' : '') + '</label><input id="pw" type="password" autocomplete="' + (up ? 'new-password' : 'current-password') + '" minlength="6" required>' +
+    (up ? photoField(null) : '') + '<div class="msg" id="amsg" role="alert"></div><button class="btn" id="go">' + (up ? 'Create my account' : 'Sign in') + '</button></form>' +
+    '<div class="alt">' + (up ? 'Already joined? <button class="link" id="swap">Sign in</button>' : 'New here? <button class="link" id="swap">Create an account</button> · <button class="link" id="forgot">Forgot password</button>') + '</div>' +
+    (up ? '<p class="sub" style="margin-top:12px;text-align:center">Your name, photo and page counts will be visible to everyone.</p>' : ''));
+  const holder = {}; if (up) wirePhoto(holder);
+  box.querySelector('#swap').onclick = () => authModal(up ? 'in' : 'up');
+  const fg = box.querySelector('#forgot'); if (fg) fg.onclick = async () => { const email = box.querySelector('#email').value.trim(); if (!/^\S+@\S+\.\S+$/.test(email)) return say('#amsg', 'Type your email above first, then tap Forgot password.');
+    try { await api.resetPassword(email); say('#amsg', LIVE ? 'If that email has an account, a reset link is on its way.' : 'Preview mode: no email is sent.', true); } catch (e) { say('#amsg', friendly(e)); } };
+  box.querySelector('#f').onsubmit = async e => { e.preventDefault(); const go = box.querySelector('#go'); if (go.disabled) return;
+    const email = box.querySelector('#email').value.trim(), password = box.querySelector('#pw').value, name = up ? box.querySelector('#name').value.replace(/\s+/g, ' ').trim() : '';
+    if (up && !name) return say('#amsg', 'Add your name.'); if (!/^\S+@\S+\.\S+$/.test(email)) return say('#amsg', 'That email address does not look right.'); if (password.length < 6) return say('#amsg', 'Use a password of at least 6 characters.');
+    busy(go, true);
+    try { if (up) { const r = await api.signUp({ name, email, password }); if (r.needsConfirm) { busy(go, false); return say('#amsg', 'Almost there. Check your email and click the link to confirm, then sign in.', true); }
+        state.me = r.user; if (holder.avatar) { try { state.me = await api.updateProfile({ avatar: holder.avatar }); } catch (e2) {} } await reload(); welcome(); }
+      else { state.me = await api.signIn({ email, password }); close(); state.view = null; await reload(); } }
+    catch (err) { busy(go, false); say('#amsg', friendly(err)); } };
+}
+function welcome() { const s = state.settings;
+  open('<h2>You\'re in, ' + esc(state.me.name.split(' ')[0]) + '.</h2><p class="sub">You can log pages any day, starting now. Which board do you want to see first?</p><div class="choice">' +
+    '<button data-v="c7"><b>7-day challenge</b><span>Free for everyone. ' + esc(short(s.c7_start) + ' to ' + short(s.c7_end)) + '.</span></button>' +
+    '<button data-v="all"><b>All time</b><span>Every page you log counts here, from today.</span></button>' +
+    '<button data-v="p6"><b>6-week challenge</b><span>For people in the program. ' + (s.text_number ? 'Text David at ' + esc(s.text_number) + ' to be added.' : 'Text David to be added.') + '</span></button></div>');
+  box.querySelectorAll('.choice button').forEach(b => b.onclick = () => { setView(b.dataset.v); close(); const p = $('#pages'); if (p) p.focus(); }); }
+function profileModal() { const me = state.me, holder = {};
+  open('<h2>Your profile</h2><form id="f" novalidate><label for="name">Your name</label><input id="name" type="text" maxlength="40" value="' + esc(me.name) + '" required>' + photoField(me) +
+    '<div class="msg" id="amsg" role="alert"></div><button class="btn" id="go">Save</button></form>' +
+    (me.is_admin ? '<button class="btn ghost" id="admin">Manage members and settings</button>' : '') +
+    '<button class="btn ghost" id="out">Sign out</button><div class="alt">' + (me.email ? esc(me.email) + ' · ' : '') + '<button class="link" id="del">Delete my account</button></div>');
+  wirePhoto(holder);
+  box.querySelector('#f').onsubmit = async e => { e.preventDefault(); const go = box.querySelector('#go'), name = box.querySelector('#name').value.replace(/\s+/g, ' ').trim(); if (!name) return say('#amsg', 'Add your name.');
+    busy(go, true, 'Saving…'); try { const patch = { name }; if ('avatar' in holder) patch.avatar = holder.avatar; state.me = Object.assign(state.me, await api.updateProfile(patch)); close(); await reload(); } catch (err) { busy(go, false); say('#amsg', friendly(err)); } };
+  box.querySelector('#out').onclick = async () => { await api.signOut(); state.me = null; close(); render(); };
+  const ad = box.querySelector('#admin'); if (ad) ad.onclick = adminModal;
+  box.querySelector('#del').onclick = () => { open('<h2>Delete your account?</h2><p class="sub">This removes your name, your photo and every page you logged. It cannot be undone.</p><div class="msg" id="amsg"></div><button class="btn" id="yes">Yes, delete everything</button><button class="btn ghost" id="no">Keep my account</button>');
+    box.querySelector('#no').onclick = close; box.querySelector('#yes').onclick = async ev => { busy(ev.target, true); try { await api.deleteMe(); state.me = null; close(); await reload(); } catch (err) { busy(ev.target, false); say('#amsg', friendly(err)); } }; };
+}
+function adminModal() { const s = state.settings;
+  open('<div class="adm"><h2>Members and settings</h2><p class="sub">Tick "6-week" to accept someone onto the 6-week board. Tick "Hide" to remove someone from every board.</p>' +
+    '<input type="search" id="find" placeholder="Search by name" aria-label="Search by name"><div class="users" id="users"></div>' +
+    '<label for="num">Number people text to be added</label><input id="num" type="tel" maxlength="30" value="' + esc(s.text_number) + '" placeholder="e.g. (512) 555-0100">' +
+    '<div class="grid2"><div><label for="a1">7-day starts</label><input id="a1" type="date" value="' + s.c7_start + '"></div><div><label for="a2">7-day ends</label><input id="a2" type="date" value="' + s.c7_end + '"></div><div><label for="a3">6-week starts</label><input id="a3" type="date" value="' + s.p6_start + '"></div><div><label for="a4">6-week ends</label><input id="a4" type="date" value="' + s.p6_end + '"></div></div>' +
+    '<div class="msg" id="amsg" role="alert"></div><button class="btn" id="go">Save settings</button></div>', true);
+  const list = () => { const q = box.querySelector('#find').value.trim().toLowerCase();
+    box.querySelector('#users').innerHTML = state.profiles.filter(p => !q || p.name.toLowerCase().includes(q)).sort((a, b) => a.name.localeCompare(b.name)).map(p => '<div class="u">' + avatar(p) + '<b style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(p.name) + '</b><label><input type="checkbox" data-id="' + esc(p.id) + '" data-k="in_program"' + (p.in_program ? ' checked' : '') + '> 6-week</label><label><input type="checkbox" data-id="' + esc(p.id) + '" data-k="hidden"' + (p.hidden ? ' checked' : '') + '> Hide</label></div>').join('') || '<div class="empty">No one found.</div>'; };
+  list(); box.querySelector('#find').oninput = list;
+  box.querySelector('#users').onchange = async e => { const c = e.target; if (!c.dataset.id) return; c.disabled = true; try { await api.adminSet(c.dataset.id, { [c.dataset.k]: c.checked }); const p = state.profiles.find(x => x.id === c.dataset.id); if (p) p[c.dataset.k] = c.checked; if (state.me && state.me.id === c.dataset.id) state.me[c.dataset.k] = c.checked; say('#amsg', 'Saved.', true); render(); } catch (err) { c.checked = !c.checked; say('#amsg', friendly(err)); } c.disabled = false; };
+  box.querySelector('#go').onclick = async e => { const v = id => box.querySelector(id).value, n = { text_number: v('#num').trim(), c7_start: v('#a1'), c7_end: v('#a2'), p6_start: v('#a3'), p6_end: v('#a4') };
+    if (!n.c7_start || !n.c7_end || !n.p6_start || !n.p6_end) return say('#amsg', 'Fill in all four dates.'); if (n.c7_start > n.c7_end || n.p6_start > n.p6_end) return say('#amsg', 'A start date is after its end date.');
+    busy(e.target, true, 'Saving…'); try { await api.saveSettings(n); Object.assign(state.settings, n); busy(e.target, false); say('#amsg', 'Saved.', true); render(); } catch (err) { busy(e.target, false); say('#amsg', friendly(err)); } };
+}
+function recoveryModal() { open('<h2>Choose a new password</h2><form id="f" novalidate><label for="pw">New password <small>(at least 6 characters)</small></label><input id="pw" type="password" autocomplete="new-password" minlength="6"><div class="msg" id="amsg"></div><button class="btn" id="go">Save password</button></form>');
+  box.querySelector('#f').onsubmit = async e => { e.preventDefault(); const p = box.querySelector('#pw').value; if (p.length < 6) return say('#amsg', 'Use a password of at least 6 characters.'); const go = box.querySelector('#go'); busy(go, true); try { await api.setPassword(p); close(); } catch (err) { busy(go, false); say('#amsg', friendly(err)); } }; }
+
+// ---------- events ----------
+function setView(v) { state.view = v; state.focus = null; LS.set('lb-view', v); render(); }
+box.addEventListener('click', e => { if (e.target.classList.contains('x')) close(); });
+document.addEventListener('click', e => { const t = e.target.closest('button'); if (!t || modal.contains(t)) return;
+  if (t.id === 'open-auth' || t.id === 'open-auth2') return authModal('up'); if (t.id === 'open-profile') return profileModal(); if (t.id === 'retry') return reload();
+  if (t.dataset.v) return setView(t.dataset.v);
+  if (t.dataset.m) { state.mode = t.dataset.m; LS.set('lb-mode', state.mode); return render(); }
+  if (t.classList.contains('r')) { state.focus = state.focus === t.dataset.id ? null : t.dataset.id; return render(); }
+  if (t.dataset.d) { state.logDay = t.dataset.d; state.flash = null; state.draft = null; return renderLog(); }
+  const p = $('#pages'); if (!p) return; const cur = Math.max(0, parseInt(p.value, 10) || 0);
+  if (t.dataset.add) p.value = Math.min(MAX_PAGES, cur + +t.dataset.add); else if (t.id === 'plus') p.value = Math.min(MAX_PAGES, cur + 1); else if (t.id === 'minus') p.value = Math.max(0, cur - 1); else if (t.id === 'save') return saveLog(t); else return;
+  state.draft = { day: state.logDay, v: p.value }; });
+document.addEventListener('change', e => { if (e.target.id === 'logdate') { const v = e.target.value, t = today(); if (!v) return; state.logDay = v > t ? t : v < MIN_DAY ? MIN_DAY : v; state.flash = null; state.draft = null; renderLog(); } });
+document.addEventListener('input', e => { if (e.target.id === 'pages') state.draft = { day: state.logDay, v: e.target.value }; });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'pages') { e.preventDefault(); saveLog($('#save')); } });
+let saving = false;
+async function saveLog(btn) { if (saving) return; const p = $('#pages'), m = $('#logmsg'), raw = p.value.trim(), n = raw === '' ? 0 : Number(raw), d = state.logDay;
+  const fail = t => { m.textContent = t; m.className = 'msg err'; };
+  if (!Number.isFinite(n) || n < 0 || Math.floor(n) !== n) return fail('Type a whole number of pages.'); if (n > MAX_PAGES) return fail('The most you can log for one day is ' + MAX_PAGES + ' pages.');
+  if (d > today()) return fail('That day has not happened yet.');
+  const had = state.entries.some(e => e.user_id === state.me.id && e.day === d); if (n === 0 && !had) return fail('Type how many pages you read.');
+  if (n > 400 && !confirm('Log ' + n + ' pages for ' + short(d) + '?')) return;
+  saving = true; busy(btn, true, 'Saving…');
+  try { await api.saveEntry(d, n); state.entries = state.entries.filter(e => !(e.user_id === state.me.id && e.day === d)); if (n > 0) state.entries.push({ user_id: state.me.id, day: d, pages: n }); saving = false; state.draft = null; state.flash = { day: d, text: n > 0 ? 'Saved: ' + n + ' pages for ' + short(d) + '.' : 'Removed your pages for ' + short(d) + '.' }; render(); reload(true); }
+  catch (err) { saving = false; busy(btn, false); fail(friendly(err)); } }
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => state.view && drawChart(board(state.view)), 120); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && state.loaded && !modal.classList.contains('on')) reload(true); });
+setInterval(() => { if (!document.hidden && state.loaded && !modal.classList.contains('on') && document.activeElement.id !== 'pages') reload(true); }, 60000);
+
+// ---------- start ----------
+(async function start() {
+  if (Q.has('embed')) document.body.classList.add('embed');
+  $('#demo').hidden = LIVE;
+  if (LIVE) { try { await new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js'; s.onload = res; s.onerror = () => rej(new Error('network')); document.head.appendChild(s); });
+      api = liveApi(supabase.createClient(CFG.url, CFG.key)); } catch (e) { state.error = friendly(e); state.view = 'all'; api = { load: async () => { throw e; } }; render(); return; } }
+  else api = demoApi();
+  state.view = pickView(); render();
+  try { state.me = await api.init(); } catch (e) { state.me = null; }
+  state.view = pickView();
+  api.onAuth && api.onAuth(ev => { if (ev === 'recovery') recoveryModal(); else if (ev === 'out' && state.me) { state.me = null; render(); } });
+  await reload();
+})();
+</script>
+</body>
+</html>
